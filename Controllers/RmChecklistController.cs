@@ -1,4 +1,3 @@
-// Controllers/RmChecklistController.cs
 using System.Text.Json;
 using geoback.Data;
 using geoback.DTOs;
@@ -562,6 +561,43 @@ public class RmChecklistController : ControllerBase
         {
             _logger.LogError(ex, "Error updating checklist");
             return StatusCode(500, new { message = "Error updating checklist", error = ex.Message });
+        }
+    }
+
+    // ADD THIS DELETE ENDPOINT
+    [HttpDelete("{id:guid}")]
+    public async Task<ActionResult> DeleteChecklist(Guid id)
+    {
+        try
+        {
+            var checklist = await _context.Checklists.FirstOrDefaultAsync(c => c.Id == id);
+
+            if (checklist == null)
+            {
+                return NotFound(new { message = "Checklist not found." });
+            }
+
+            // Optional: Add authorization check - only allow deletion if status is pending or draft
+            if (checklist.Status != "pending" && checklist.Status != "draft")
+            {
+                return BadRequest(new { message = "Only reports with status 'pending' or 'draft' can be deleted." });
+            }
+
+            _context.Checklists.Remove(checklist);
+            await _context.SaveChangesAsync();
+
+            _logger.LogInformation($"Checklist {id} deleted successfully");
+
+            return Ok(new
+            {
+                message = "Checklist deleted successfully",
+                id = id
+            });
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Error deleting checklist");
+            return StatusCode(500, new { message = "Error deleting checklist", error = ex.Message });
         }
     }
 

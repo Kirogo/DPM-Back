@@ -605,3 +605,4 @@ C:\Users\samuel.kirogo\OneDrive - NCBA Group PLC\Desktop\Projects\DPM\dpmback\ob
 C:\Users\samuel.kirogo\OneDrive - NCBA Group PLC\Desktop\Projects\DPM\dpmback\obj\Debug\net8.0\geoback.pdb
 C:\Users\samuel.kirogo\OneDrive - NCBA Group PLC\Desktop\Projects\DPM\dpmback\obj\Debug\net8.0\geoback.genruntimeconfig.cache
 C:\Users\samuel.kirogo\OneDrive - NCBA Group PLC\Desktop\Projects\DPM\dpmback\obj\Debug\net8.0\ref\geoback.dll
+C:\Users\samuel.kirogo\OneDrive - NCBA Group PLC\Desktop\Projects\DPM\dpmback\obj\Debug\net8.0\geoback.sourcelink.json
