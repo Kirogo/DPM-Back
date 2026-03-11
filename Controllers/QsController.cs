@@ -33,10 +33,20 @@ public class QsController : ControllerBase
         return User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
     }
 
-    private string? GetCurrentUserName()
+    private async Task<(string? userId, string? userName, string? userRole)> GetCurrentUserInfo()
     {
-        return User.FindFirst(ClaimTypes.Name)?.Value ??
-               $"{User.FindFirst("firstName")?.Value} {User.FindFirst("lastName")?.Value}".Trim();
+        var userId = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+        if (string.IsNullOrEmpty(userId))
+            return (null, null, null);
+
+        var user = await _context.Users.FindAsync(Guid.Parse(userId));
+        if (user == null)
+            return (userId, null, null);
+
+        var userName = $"{user.FirstName} {user.LastName}".Trim();
+        var userRole = user.Role;
+
+        return (userId, userName, userRole);
     }
 
     [HttpGet("dashboard/stats")]
@@ -249,20 +259,22 @@ public class QsController : ControllerBase
     {
         try
         {
-            var userId = GetCurrentUserId();
-            var userName = GetCurrentUserName();
-            var userRole = User.FindFirst(ClaimTypes.Role)?.Value ?? "QS";
+            var (userId, userName, userRole) = await GetCurrentUserInfo();
 
             if (string.IsNullOrEmpty(userId))
                 return Unauthorized(new { message = "User not authenticated" });
+
+            // FIXED: Ensure we have a valid userName
+            var finalUserName = !string.IsNullOrEmpty(userName) ? userName : "QS User";
+            var finalUserRole = !string.IsNullOrEmpty(userRole) ? userRole : "QS";
 
             var comment = new Comment
             {
                 Id = Guid.NewGuid(),
                 ReportId = id,
                 UserId = Guid.Parse(userId),
-                UserName = userName ?? "QS User",
-                UserRole = userRole,
+                UserName = finalUserName,
+                UserRole = finalUserRole,
                 Text = dto.Comment,
                 IsInternal = dto.IsInternal,
                 CreatedAt = DateTime.UtcNow
@@ -297,8 +309,7 @@ public class QsController : ControllerBase
     {
         try
         {
-            var userId = GetCurrentUserId();
-            var userName = GetCurrentUserName();
+            var (userId, userName, _) = await GetCurrentUserInfo();
 
             if (string.IsNullOrEmpty(userId))
                 return Unauthorized(new { message = "User not authenticated" });
@@ -327,8 +338,7 @@ public class QsController : ControllerBase
     {
         try
         {
-            var userId = GetCurrentUserId();
-            var userName = GetCurrentUserName();
+            var (userId, userName, userRole) = await GetCurrentUserInfo();
 
             if (string.IsNullOrEmpty(userId))
                 return Unauthorized(new { message = "User not authenticated" });
@@ -342,13 +352,17 @@ public class QsController : ControllerBase
             report.Status = "rework";
             report.UpdatedAt = DateTime.UtcNow;
 
+            // FIXED: Ensure we have a valid userName
+            var finalUserName = !string.IsNullOrEmpty(userName) ? userName : "QS User";
+            var finalUserRole = !string.IsNullOrEmpty(userRole) ? userRole : "QS";
+
             var comment = new Comment
             {
                 Id = Guid.NewGuid(),
                 ReportId = id,
                 UserId = Guid.Parse(userId),
-                UserName = userName ?? "QS User",
-                UserRole = "QS",
+                UserName = finalUserName,
+                UserRole = finalUserRole,
                 Text = dto.Notes,
                 IsInternal = false,
                 CreatedAt = DateTime.UtcNow
@@ -372,8 +386,7 @@ public class QsController : ControllerBase
     {
         try
         {
-            var userId = GetCurrentUserId();
-            var userName = GetCurrentUserName();
+            var (userId, userName, userRole) = await GetCurrentUserInfo();
 
             if (string.IsNullOrEmpty(userId))
                 return Unauthorized(new { message = "User not authenticated" });
@@ -389,13 +402,17 @@ public class QsController : ControllerBase
 
             if (!string.IsNullOrEmpty(dto?.Notes))
             {
+                // FIXED: Ensure we have a valid userName
+                var finalUserName = !string.IsNullOrEmpty(userName) ? userName : "QS User";
+                var finalUserRole = !string.IsNullOrEmpty(userRole) ? userRole : "QS";
+
                 var comment = new Comment
                 {
                     Id = Guid.NewGuid(),
                     ReportId = id,
                     UserId = Guid.Parse(userId),
-                    UserName = userName ?? "QS User",
-                    UserRole = "QS",
+                    UserName = finalUserName,
+                    UserRole = finalUserRole,
                     Text = dto.Notes,
                     IsInternal = false,
                     CreatedAt = DateTime.UtcNow
@@ -449,7 +466,6 @@ public class QsController : ControllerBase
             customerNumber = checklist.CustomerNumber,
             customerName = checklist.CustomerName,
             customerEmail = checklist.CustomerEmail,
-            // FIX: Use LoanType instead of ProjectName and map to projectName for frontend compatibility
             projectName = checklist.LoanType,
             loanType = checklist.LoanType,
             ibpsNo = checklist.IbpsNo,
