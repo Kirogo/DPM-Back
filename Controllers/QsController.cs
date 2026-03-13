@@ -1,4 +1,4 @@
-// Controllers/QsController.cs
+// Controllers/QsController.cs (Updated AddComment method)
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using geoback.Data;
@@ -245,7 +245,7 @@ public class QsController : ControllerBase
                 })
                 .ToListAsync();
 
-            return Ok(comments);
+            return Ok(comments); // Return the array directly, not wrapped in an object
         }
         catch (Exception ex)
         {
@@ -275,7 +275,7 @@ public class QsController : ControllerBase
                 UserId = Guid.Parse(userId),
                 UserName = finalUserName,
                 UserRole = finalUserRole,
-                Text = dto.Comment,
+                Text = dto.Comment, // Map Comment to Text
                 IsInternal = dto.IsInternal,
                 CreatedAt = DateTime.UtcNow
             };
