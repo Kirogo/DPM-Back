@@ -1,3 +1,5 @@
+//DTOs/SiteVisitReportDto.cs
+using Microsoft.AspNetCore.Http; 
 namespace geoback.DTOs
 {
     public class CreateSiteVisitReportDto

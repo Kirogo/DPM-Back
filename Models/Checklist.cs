@@ -17,16 +17,16 @@ namespace geoback.Models
         public string CustomerNumber { get; set; } = string.Empty;
         public string CustomerName { get; set; } = string.Empty;
         public string? CustomerEmail { get; set; }
-        
+
         // Use LoanType to match database
         public string LoanType { get; set; } = string.Empty;
-        
+
         public string? IbpsNo { get; set; }
 
         public string Status { get; set; } = "pending";
-        
+
         public Guid? AssignedToRM { get; set; }
-        
+
         [Column(TypeName = "longtext")]
         public string DocumentsJson { get; set; } = "[]";
 
@@ -42,7 +42,7 @@ namespace geoback.Models
         public string? LockedByUserName { get; set; }
         public string? LockedByUserRole { get; set; }
         public DateTime? LockedAt { get; set; }
-        
+
         // NEW: Enhanced lock fields
         public string? LockSessionId { get; set; }
         public DateTime? LockHeartbeat { get; set; }
@@ -55,6 +55,13 @@ namespace geoback.Models
         public string? Priority { get; set; }
         public DateTime? ReviewedAt { get; set; }
         public string? ReviewedBy { get; set; }
+
+        public DateTime? SiteVisitScheduledDate { get; set; }
+        public string? SiteVisitNotes { get; set; }
+        public string? SiteVisitFindings { get; set; }
+        public DateTime? SiteVisitConfirmedAt { get; set; }
+        public string? SiteVisitScheduledBy { get; set; }
+        public string? SiteVisitScheduledByName { get; set; }
 
         // Navigation property for comments
         public virtual ICollection<Comment> Comments { get; set; } = new List<Comment>();
